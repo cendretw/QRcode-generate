@@ -430,14 +430,16 @@ async function generate(){
   if(canvas){
     const dataUrl = canvas.toDataURL('image/png');
     dlBtn.href = dataUrl;
-    // qrcodejs also renders a hidden <img> copy of the canvas; if that's the
-    // element actually shown, it won't reflect our overlay unless we sync it.
+    // qrcodejs renders both a <canvas> and a fallback <img> copy of it.
+    // Show only one, or they stack and double the height.
     const fallbackImg = qrbox.querySelector('img');
     if(fallbackImg){
       fallbackImg.src = dataUrl;
       fallbackImg.style.display = 'block';
+      canvas.style.display = 'none';
+    } else {
+      canvas.style.display = 'block';
     }
-    canvas.style.display = 'block';
   }
   stage.style.display = 'block';
 }
