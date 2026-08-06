@@ -63,6 +63,17 @@
     margin:0 0 22px;
     font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
   }
+  .howto{
+    margin:0 0 22px;
+    padding:12px 14px 12px 30px;
+    background:rgba(178,58,46,0.06);
+    border:1px solid rgba(178,58,46,0.18);
+    border-radius:4px;
+    font-size:12px;
+    line-height:1.7;
+    color:var(--ink-soft);
+  }
+  .howto li{margin:0;}
   label{
     display:block;
     font-size:11px;
@@ -189,6 +200,13 @@
   <div class="card">
     <h1>QR Code 產生器</h1>
     <p class="sub">貼上連結 → 產生自帶 Logo 的 QR Code</p>
+
+    <ol class="howto">
+      <li>貼上要導向的網址</li>
+      <li>中心圖案選「無」「Logo 圖片」或「文字」（可不選）</li>
+      <li>按「產生 QR Code」，下方會出現預覽</li>
+      <li>確認預覽沒問題後按「下載 PNG」</li>
+    </ol>
 
     <div class="field">
       <label>網址</label>
@@ -410,7 +428,16 @@ async function generate(){
   }
 
   if(canvas){
-    dlBtn.href = canvas.toDataURL('image/png');
+    const dataUrl = canvas.toDataURL('image/png');
+    dlBtn.href = dataUrl;
+    // qrcodejs also renders a hidden <img> copy of the canvas; if that's the
+    // element actually shown, it won't reflect our overlay unless we sync it.
+    const fallbackImg = qrbox.querySelector('img');
+    if(fallbackImg){
+      fallbackImg.src = dataUrl;
+      fallbackImg.style.display = 'block';
+    }
+    canvas.style.display = 'block';
   }
   stage.style.display = 'block';
 }
