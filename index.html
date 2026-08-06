@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QR Code 產生器</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --board:#2E3A34;
+    --board-line:#41524A;
+    --card:#F6F1E7;
+    --card-edge:#E4DBC7;
+    --ink:#20241F;
+    --ink-soft:#5B6259;
+    --red:#B23A2E;
+    --red-dark:#8E2C22;
+    --chalk:#EDEAE0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 26px),
+      var(--board);
+    color:var(--ink);
+    font-family:"Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:48px 20px;
+  }
+  .card{
+    width:100%;
+    max-width:420px;
+    background:var(--card);
+    border:1px solid var(--card-edge);
+    border-radius:6px;
+    padding:28px 26px 24px;
+    box-shadow:0 22px 50px rgba(0,0,0,0.35), 0 2px 0 rgba(0,0,0,0.06);
+    position:relative;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-10px; left:22px;
+    width:44px; height:20px;
+    background:rgba(178,58,46,0.85);
+    transform:rotate(-4deg);
+    box-shadow:0 2px 4px rgba(0,0,0,0.25);
+    border-radius:2px;
+  }
+  h1{
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:22px;
+    margin:6px 0 2px;
+    letter-spacing:0.2px;
+  }
+  .sub{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 22px;
+    font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  label{
+    display:block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .field{margin-bottom:16px;}
+  input[type="text"]{
+    width:100%;
+    padding:10px 12px;
+    font-size:14px;
+    border:1px solid var(--card-edge);
+    border-radius:4px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+  }
+  input[type="text"]:focus{border-color:var(--red);}
+  .mode-row{
+    display:flex;
+    gap:16px;
+  }
+  .mode-opt{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:13px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .logo-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .logo-thumb{
+    width:38px;height:38px;
+    border-radius:4px;
+    border:1px solid var(--card-edge);
+    background:#fff repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 0 0/10px 10px;
+    object-fit:contain;
+    display:none;
+    flex-shrink:0;
+  }
+  .file-btn{
+    font-size:12.5px;
+    padding:8px 10px;
+    background:#fff;
+    border:1px solid var(--card-edge);
+    border-radius:4px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .file-btn:hover{border-color:var(--red);}
+  input[type="file"]{display:none;}
+  .clear-logo{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:0;
+    display:none;
+  }
+  .go{
+    width:100%;
+    padding:12px;
+    margin-top:6px;
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:4px;
+    font-size:14.5px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .go:hover{background:var(--red-dark);}
+  .stage{
+    margin-top:24px;
+    padding-top:20px;
+    border-top:1px dashed var(--card-edge);
+    display:none;
+    text-align:center;
+  }
+  #qrbox{
+    display:inline-block;
+    padding:14px;
+    background:#fff;
+    border-radius:4px;
+    border:1px solid var(--card-edge);
+  }
+  #qrbox canvas{display:block;}
+  .dl{
+    display:inline-block;
+    margin-top:14px;
+    padding:9px 18px;
+    background:var(--ink);
+    color:var(--chalk);
+    border-radius:4px;
+    font-size:13px;
+    text-decoration:none;
+  }
+  .dl:hover{background:#000;}
+  .hint{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:8px;
+  }
+  .err{
+    font-size:12px;
+    color:var(--red);
+    margin-top:6px;
+    display:none;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>QR Code 產生器</h1>
+    <p class="sub">貼上連結 → 產生自帶 Logo 的 QR Code</p>
+
+    <div class="field">
+      <label>網址</label>
+      <input type="text" id="url" placeholder="https://example.com" />
+      <div class="err" id="urlErr">請輸入網址</div>
+    </div>
+
+    <div class="field">
+      <label>中心圖案</label>
+      <div class="mode-row">
+        <label class="mode-opt"><input type="radio" name="mode" value="none" checked /> 無</label>
+        <label class="mode-opt"><input type="radio" name="mode" value="logo" /> Logo 圖片</label>
+        <label class="mode-opt"><input type="radio" name="mode" value="text" /> 文字</label>
+      </div>
+    </div>
+
+    <div class="field" id="logoField" style="display:none;">
+      <label>Logo（建議正方形圖片）</label>
+      <div class="logo-row">
+        <img id="logoThumb" class="logo-thumb" alt="logo" />
+        <label class="file-btn" for="logoInput">選擇圖片</label>
+        <input type="file" id="logoInput" accept="image/*" />
+        <button class="clear-logo" id="clearLogo">清除已存 Logo</button>
+      </div>
+    </div>
+
+    <div class="field" id="textField" style="display:none;">
+      <label>中心文字（建議 4 個字以內）</label>
+      <input type="text" id="centerText" maxlength="8" placeholder="例如：掃我" />
+    </div>
+
+    <button class="go" id="genBtn">產生 QR Code</button>
+
+    <div class="stage" id="stage">
+      <div id="qrbox"></div>
+      <div><a class="dl" id="dlBtn" download="qrcode.png">下載 PNG</a></div>
+      <div class="hint">Logo 會自動存起來,下次打開直接可用</div>
+    </div>
+  </div>
+
+<script>
+let currentLogoDataUrl = null;
+
+const urlInput = document.getElementById('url');
+const urlErr = document.getElementById('urlErr');
+const logoInput = document.getElementById('logoInput');
+const logoThumb = document.getElementById('logoThumb');
+const clearLogoBtn = document.getElementById('clearLogo');
+const genBtn = document.getElementById('genBtn');
+const stage = document.getElementById('stage');
+const qrbox = document.getElementById('qrbox');
+const dlBtn = document.getElementById('dlBtn');
+const logoField = document.getElementById('logoField');
+const textField = document.getElementById('textField');
+const centerText = document.getElementById('centerText');
+const modeRadios = document.querySelectorAll('input[name="mode"]');
+
+function currentMode(){
+  return document.querySelector('input[name="mode"]:checked').value;
+}
+
+modeRadios.forEach(r => {
+  r.addEventListener('change', () => {
+    const mode = currentMode();
+    logoField.style.display = mode === 'logo' ? 'block' : 'none';
+    textField.style.display = mode === 'text' ? 'block' : 'none';
+  });
+});
+
+function showLogoThumb(dataUrl){
+  logoThumb.src = dataUrl;
+  logoThumb.style.display = 'inline-block';
+  clearLogoBtn.style.display = 'inline';
+}
+
+async function loadSavedLogo(){
+  try{
+    const res = await window.storage.get('logo', false);
+    if(res && res.value){
+      currentLogoDataUrl = res.value;
+      showLogoThumb(currentLogoDataUrl);
+    }
+  }catch(e){
+    // no saved logo yet, ignore
+  }
+}
+loadSavedLogo();
+
+logoInput.addEventListener('change', () => {
+  const file = logoInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    currentLogoDataUrl = reader.result;
+    showLogoThumb(currentLogoDataUrl);
+    try{
+      await window.storage.set('logo', currentLogoDataUrl, false);
+    }catch(e){
+      console.error('無法儲存 logo', e);
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+clearLogoBtn.addEventListener('click', async () => {
+  currentLogoDataUrl = null;
+  logoThumb.style.display = 'none';
+  logoThumb.src = '';
+  clearLogoBtn.style.display = 'none';
+  logoInput.value = '';
+  try{
+    await window.storage.delete('logo', false);
+  }catch(e){
+    // nothing stored, ignore
+  }
+});
+
+function normalizeUrl(raw){
+  let v = raw.trim();
+  if(!v) return null;
+  if(!/^https?:\/\//i.test(v)){
+    v = 'https://' + v;
+  }
+  return v;
+}
+
+function drawLogoOnCanvas(canvas, logoDataUrl){
+  return new Promise((resolve) => {
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      const size = canvas.width;
+      const logoSize = Math.round(size * 0.22);
+      const pad = Math.round(logoSize * 0.16);
+      const x = (size - logoSize) / 2;
+      const y = (size - logoSize) / 2;
+
+      // white rounded backing so the logo stays scannable
+      ctx.fillStyle = '#ffffff';
+      const r = 8;
+      const bx = x - pad, by = y - pad, bw = logoSize + pad*2, bh = logoSize + pad*2;
+      ctx.beginPath();
+      ctx.moveTo(bx+r, by);
+      ctx.arcTo(bx+bw, by, bx+bw, by+bh, r);
+      ctx.arcTo(bx+bw, by+bh, bx, by+bh, r);
+      ctx.arcTo(bx, by+bh, bx, by, r);
+      ctx.arcTo(bx, by, bx+bw, by, r);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.drawImage(img, x, y, logoSize, logoSize);
+      resolve();
+    };
+    img.onerror = () => resolve();
+    img.src = logoDataUrl;
+  });
+}
+
+function drawTextOnCanvas(canvas, text){
+  const ctx = canvas.getContext('2d');
+  const size = canvas.width;
+  const boxSize = Math.round(size * 0.30);
+  const x = (size - boxSize) / 2;
+  const y = (size - boxSize) / 2;
+
+  // white rounded backing
+  ctx.fillStyle = '#ffffff';
+  const r = 8;
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+boxSize, y, x+boxSize, y+boxSize, r);
+  ctx.arcTo(x+boxSize, y+boxSize, x, y+boxSize, r);
+  ctx.arcTo(x, y+boxSize, x, y, r);
+  ctx.arcTo(x, y, x+boxSize, y, r);
+  ctx.closePath();
+  ctx.fill();
+
+  // fit text within the box, shrinking font size as needed
+  ctx.fillStyle = '#20241F';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const maxWidth = boxSize * 0.82;
+  let fontSize = Math.round(boxSize * 0.34);
+  do{
+    ctx.font = `700 ${fontSize}px "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif`;
+    fontSize -= 1;
+  } while(ctx.measureText(text).width > maxWidth && fontSize > 6);
+
+  ctx.fillText(text, size/2, size/2 + 1);
+}
+
+async function generate(){
+  const target = normalizeUrl(urlInput.value);
+  if(!target){
+    urlErr.style.display = 'block';
+    return;
+  }
+  urlErr.style.display = 'none';
+
+  qrbox.innerHTML = '';
+  new QRCode(qrbox, {
+    text: target,
+    width: 260,
+    height: 260,
+    colorDark: '#20241F',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  // qrcodejs renders synchronously into a canvas (or table fallback)
+  await new Promise(r => setTimeout(r, 30));
+  const canvas = qrbox.querySelector('canvas');
+  const mode = currentMode();
+
+  if(canvas && mode === 'logo' && currentLogoDataUrl){
+    await drawLogoOnCanvas(canvas, currentLogoDataUrl);
+  } else if(canvas && mode === 'text' && centerText.value.trim()){
+    drawTextOnCanvas(canvas, centerText.value.trim());
+  }
+
+  if(canvas){
+    dlBtn.href = canvas.toDataURL('image/png');
+  }
+  stage.style.display = 'block';
+}
+
+genBtn.addEventListener('click', generate);
+urlInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') generate();
+});
+</script>
+</body>
+</html>
