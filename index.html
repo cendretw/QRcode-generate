@@ -51,6 +51,20 @@
     box-shadow:0 2px 4px rgba(0,0,0,0.25);
     border-radius:2px;
   }
+  .lang-toggle{
+    position:absolute;
+    top:14px; right:14px;
+    font-size:11px;
+    font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing:0.06em;
+    padding:5px 9px;
+    background:#fff;
+    border:1px solid var(--card-edge);
+    border-radius:4px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .lang-toggle:hover{border-color:var(--red); color:var(--red);}
   h1{
     font-family:Georgia, "Times New Roman", serif;
     font-size:22px;
@@ -206,52 +220,54 @@
 </head>
 <body>
   <div class="card">
-    <h1>QR Code 產生器</h1>
-    <p class="sub">貼上連結 → 產生自帶 Logo 的 QR Code</p>
+    <button class="lang-toggle" id="langToggle" type="button">EN</button>
+
+    <h1 data-zh="QR Code 產生器" data-en="QR Code Generator">QR Code 產生器</h1>
+    <p class="sub" data-zh="貼上連結 → 產生自帶 Logo 的 QR Code" data-en="Paste a link → get a QR code with your Logo">貼上連結 → 產生自帶 Logo 的 QR Code</p>
 
     <ol class="howto">
-      <li>貼上要導向的網址</li>
-      <li>中心圖案選「無」「Logo 圖片」或「文字」（可不選）</li>
-      <li>按「產生 QR Code」，下方會出現預覽</li>
-      <li>確認預覽沒問題後按「下載 PNG」</li>
+      <li data-zh="貼上要導向的網址" data-en="Paste the destination URL">貼上要導向的網址</li>
+      <li data-zh="中心圖案選「無」「Logo 圖片」或「文字」（可不選）" data-en="Pick a center overlay: None, Logo image, or Text (optional)">中心圖案選「無」「Logo 圖片」或「文字」（可不選）</li>
+      <li data-zh="按「產生 QR Code」，下方會出現預覽" data-en="Click Generate — a preview appears below">按「產生 QR Code」，下方會出現預覽</li>
+      <li data-zh="確認預覽沒問題後按「下載 PNG」" data-en="Check the preview, then click Download PNG">確認預覽沒問題後按「下載 PNG」</li>
     </ol>
 
     <div class="field">
-      <label>網址</label>
+      <label data-zh="網址" data-en="URL">網址</label>
       <input type="text" id="url" placeholder="https://example.com" />
-      <div class="err" id="urlErr">請輸入網址</div>
+      <div class="err" id="urlErr" data-zh="請輸入網址" data-en="Please enter a URL">請輸入網址</div>
     </div>
 
     <div class="field">
-      <label>中心圖案</label>
+      <label data-zh="中心圖案" data-en="Center overlay">中心圖案</label>
       <div class="mode-row">
-        <label class="mode-opt"><input type="radio" name="mode" value="none" checked /> 無</label>
-        <label class="mode-opt"><input type="radio" name="mode" value="logo" /> Logo 圖片</label>
-        <label class="mode-opt"><input type="radio" name="mode" value="text" /> 文字</label>
+        <label class="mode-opt"><input type="radio" name="mode" value="none" checked /> <span data-zh="無" data-en="None">無</span></label>
+        <label class="mode-opt"><input type="radio" name="mode" value="logo" /> <span data-zh="Logo 圖片" data-en="Logo image">Logo 圖片</span></label>
+        <label class="mode-opt"><input type="radio" name="mode" value="text" /> <span data-zh="文字" data-en="Text">文字</span></label>
       </div>
     </div>
 
     <div class="field" id="logoField" style="display:none;">
-      <label>Logo（建議正方形圖片）</label>
+      <label data-zh="Logo（建議正方形圖片）" data-en="Logo (square image recommended)">Logo（建議正方形圖片）</label>
       <div class="logo-row">
         <img id="logoThumb" class="logo-thumb" alt="logo" />
-        <label class="file-btn" for="logoInput">選擇圖片</label>
+        <label class="file-btn" for="logoInput" data-zh="選擇圖片" data-en="Choose image">選擇圖片</label>
         <input type="file" id="logoInput" accept="image/*" />
-        <button class="clear-logo" id="clearLogo">清除已存 Logo</button>
+        <button class="clear-logo" id="clearLogo" data-zh="清除已存 Logo" data-en="Clear saved logo">清除已存 Logo</button>
       </div>
     </div>
 
     <div class="field" id="textField" style="display:none;">
-      <label>中心文字（建議 4 個字以內）</label>
-      <input type="text" id="centerText" maxlength="8" placeholder="例如：掃我" />
+      <label data-zh="中心文字（最多 10 字，較長時會自動換成兩行）" data-en="Center text (up to 10 characters; long text wraps to two lines)">中心文字（最多 10 字，較長時會自動換成兩行）</label>
+      <input type="text" id="centerText" maxlength="10" placeholder="例如：掃我看講義" data-zh-ph="例如：掃我看講義" data-en-ph="e.g. Scan for handout" />
     </div>
 
-    <button class="go" id="genBtn">產生 QR Code</button>
+    <button class="go" id="genBtn" data-zh="產生 QR Code" data-en="Generate QR Code">產生 QR Code</button>
 
     <div class="stage" id="stage">
       <div id="qrbox"></div>
-      <div><a class="dl" id="dlBtn" download="qrcode.png">下載 PNG</a></div>
-      <div class="hint">Logo 會自動存起來,下次打開直接可用</div>
+      <div><a class="dl" id="dlBtn" download="qrcode.png" data-zh="下載 PNG" data-en="Download PNG">下載 PNG</a></div>
+      <div class="hint" data-zh="Logo 會自動存起來,下次打開直接可用" data-en="Your logo is saved automatically for next time">Logo 會自動存起來,下次打開直接可用</div>
     </div>
 
     <div class="credit">Made by Daphne Lin &amp; Claude Code</div>
@@ -259,6 +275,44 @@
 
 <script>
 let currentLogoDataUrl = null;
+let currentLang = 'zh';
+
+const langToggle = document.getElementById('langToggle');
+const htmlEl = document.documentElement;
+
+function applyLang(lang){
+  currentLang = lang;
+  document.querySelectorAll('[data-zh]').forEach(el => {
+    el.textContent = lang === 'en' ? el.getAttribute('data-en') : el.getAttribute('data-zh');
+  });
+  document.querySelectorAll('[data-zh-ph]').forEach(el => {
+    el.placeholder = lang === 'en' ? el.getAttribute('data-en-ph') : el.getAttribute('data-zh-ph');
+  });
+  langToggle.textContent = lang === 'en' ? '中文' : 'EN';
+  htmlEl.lang = lang === 'en' ? 'en' : 'zh-Hant';
+}
+
+langToggle.addEventListener('click', async () => {
+  const next = currentLang === 'en' ? 'zh' : 'en';
+  applyLang(next);
+  try{
+    await window.storage.set('lang', next, false);
+  }catch(e){
+    // ignore, language just won't persist
+  }
+});
+
+async function loadSavedLang(){
+  try{
+    const res = await window.storage.get('lang', false);
+    if(res && res.value){
+      applyLang(res.value);
+    }
+  }catch(e){
+    // no saved preference, default zh stays
+  }
+}
+loadSavedLang();
 
 const urlInput = document.getElementById('url');
 const urlErr = document.getElementById('urlErr');
@@ -378,34 +432,69 @@ function drawLogoOnCanvas(canvas, logoDataUrl){
 function drawTextOnCanvas(canvas, text){
   const ctx = canvas.getContext('2d');
   const size = canvas.width;
-  const boxSize = Math.round(size * 0.30);
-  const x = (size - boxSize) / 2;
-  const y = (size - boxSize) / 2;
+  const family = '"Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif';
+  const pad = Math.round(size * 0.03);
+  const maxBoxW = Math.round(size * 0.46);   // keep the covered area small enough to scan
+  const maxInnerW = maxBoxW - pad * 2;
+
+  const widthAt = (s, fs) => {
+    ctx.font = `700 ${fs}px ${family}`;
+    return ctx.measureText(s).width;
+  };
+
+  // split into two balanced lines (prefer breaking at a space near the middle)
+  const splitTwo = (t) => {
+    const chars = Array.from(t);
+    let best = -1, bestDist = Infinity;
+    chars.forEach((c, i) => {
+      if(c === ' '){
+        const d = Math.abs(i - chars.length / 2);
+        if(d < bestDist){ best = i; bestDist = d; }
+      }
+    });
+    if(best > 0 && best < chars.length - 1){
+      return [chars.slice(0, best).join('').trim(), chars.slice(best + 1).join('').trim()];
+    }
+    const mid = Math.ceil(chars.length / 2);
+    return [chars.slice(0, mid).join(''), chars.slice(mid).join('')];
+  };
+
+  // try one line first; if it would get too small, wrap into two lines
+  let lines = [text];
+  let fs = Math.round(size * 0.11);
+  const minSingleFs = Math.round(size * 0.075);
+  while(fs > minSingleFs && widthAt(text, fs) > maxInnerW) fs--;
+  if(widthAt(text, fs) > maxInnerW){
+    lines = splitTwo(text);
+    fs = Math.round(size * 0.10);
+    while(fs > 8 && Math.max(...lines.map(l => widthAt(l, fs))) > maxInnerW) fs--;
+  }
+
+  const lineH = Math.round(fs * 1.25);
+  const textW = Math.max(...lines.map(l => widthAt(l, fs)));
+  const boxW = Math.round(textW + pad * 2);
+  const boxH = Math.round(lineH * lines.length + pad * 2);
+  const x = (size - boxW) / 2;
+  const y = (size - boxH) / 2;
 
   // white rounded backing
   ctx.fillStyle = '#ffffff';
   const r = 8;
   ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.arcTo(x+boxSize, y, x+boxSize, y+boxSize, r);
-  ctx.arcTo(x+boxSize, y+boxSize, x, y+boxSize, r);
-  ctx.arcTo(x, y+boxSize, x, y, r);
-  ctx.arcTo(x, y, x+boxSize, y, r);
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + boxW, y, x + boxW, y + boxH, r);
+  ctx.arcTo(x + boxW, y + boxH, x, y + boxH, r);
+  ctx.arcTo(x, y + boxH, x, y, r);
+  ctx.arcTo(x, y, x + boxW, y, r);
   ctx.closePath();
   ctx.fill();
 
-  // fit text within the box, shrinking font size as needed
   ctx.fillStyle = '#20241F';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const maxWidth = boxSize * 0.82;
-  let fontSize = Math.round(boxSize * 0.34);
-  do{
-    ctx.font = `700 ${fontSize}px "Helvetica Neue", Arial, "PingFang TC", "Microsoft JhengHei", sans-serif`;
-    fontSize -= 1;
-  } while(ctx.measureText(text).width > maxWidth && fontSize > 6);
-
-  ctx.fillText(text, size/2, size/2 + 1);
+  ctx.font = `700 ${fs}px ${family}`;
+  const startY = size / 2 - (lines.length - 1) * lineH / 2;
+  lines.forEach((l, i) => ctx.fillText(l, size / 2, startY + i * lineH + 1));
 }
 
 async function generate(){
